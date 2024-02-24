@@ -113,7 +113,7 @@ Note that this command did not require the password like the signing command did
       "verification": "OK"
     }
 
-So we can see how signatures work, and how we can use them to securely have SN operators use their PastelID identity to attest to a particular message by signing that message with their PastelID private key, and that anyone on the network can then verify that this particular message was signed by this particular PastelID. Note that, in the command above, if any character in the message were changed even slightly, it wouldn’t work:
+So we can see how signatures work, and how we can use them to securely have SN operators use their PastelID identity to attest to a particular message by signing that message with their PastelID private key, and that anyone on the network can then verify that this particular message was signed by this particular PastelID. Note that, in the command above, if *any* character in the message were changed even slightly, it wouldn’t work:
 
 
     ❯ ./pastel-cli pastelid verify "Hey, my name is Bob (2/23/2024)" "v+IAwgRZaN2ExKCE+9RRXGRbpqohO0SbZy25HSraRKQbfb49PuBekZ10QAEuWtxxV1lS0g6Kg0KAez9bneb3oYsZasYlhBOys3cLwaGQPMmEcDOZP3a1JrfouAExUIzzdUXVZ6SZzqvLE96JK91pbBAA" "jXXTanVUSe1T7n3tPTgY3np9a9ePC7bCHnffGRVjqGLaBxYcANePnTU7AQuEf8QSgH72tda2g4BsxUPNhZBcCB" "ed448"
