@@ -206,7 +206,7 @@ At that point, they could simply click the Execute button next to the relevant e
 ![](https://paper-attachments.dropboxusercontent.com/s_D2E0AAF8676B46CAF8157C2741087BFA44BE8382A55DB2FFCB80BFBE2D205018_1708721650532_image.png)
 
 
-Of course, the mining pool software would be doing this entirely in an automated way without using a web browser. In this way, the pool can use your SN PastelID signatures to sign new blocks that it finds, *without* you needing to compromise your security by revealing the private keys for those PastelIDs. The private keys stay safe and secure on your server, and the mining pool software can only get the signatures themselves. 
+Of course, the mining pool software would be doing this entirely in an automated way without using a web browser. In this way, the pool can use your SN PastelID signatures to sign new blocks that it finds, *without* you needing to compromise your security by revealing the private keys for those PastelIDs. The private keys stay safe and secure on your server, and the mining pool software can only get the signatures themselves, and even then, only signatures on the previous block's Merkle root (the mining pool doesn't supply the message to sign at all, this is all done internally by the Python API server).
 
 
 ## An Important Caveat
