@@ -154,9 +154,9 @@ So we modified the pool software so that anyone who wants to mine Pastel would n
 
 The way this works is that anyone interested in mining can get a cheap cloud instance (or use one they already have, such as an existing instance used for their SN, which they would need to have *anyway* to run the SN) with a static IP address, and then install our new Python based API server, the [mining_block_supernode_validator](https://github.com/pastelnetwork/mining_block_supernode_validator). This is all quite easy to do if you’re technically adept enough already to set up a SN. If all you know how to do is rent hashpower on NiceHash and point it to a pool, and would have no clue at all on how to set up and configure a Pastel SN or this new Python API, then that would be a problem and you’d probably be unable to mine without asking for a lot of help (which of course we’d be happy to provide anyone in our Telegram and Discord groups; remember, the purpose of this is *not* to make mining some exclusive thing available only to anointed insiders or friends; instead, it’s to eliminate the free-rider problem and fix the market dynamics for PSL).
 
-This Python API is pretty straightforward: you simply start it up and it runs in a continuous loop, automatically connecting to the local Pastel node software on that machine so it can monitor new blocks. You simply set up a configuration file that contains the details of your various SN PastelIDs that you want to use for mining. You can use just one if you only have a single SN, or you can use as many as you have (say, 20). This configuration file looks like this:
+This Python API is pretty straightforward: you simply start it up and it runs in a continuous loop, automatically connecting to the local Pastel node software on that machine so it can monitor for new blocks. You simply set up a configuration file that contains the details of your various SN PastelIDs that you want to use for mining. You can use just one entry if you only have a single SN, or you can use as many as you have (say, 20). This configuration file looks like this:
 
-
+```yaml
     all:
       SuperNode01:
         col_address: tPX7gmMjErHz8rMySTn7J1xXiygsRS5jijX
@@ -178,13 +178,15 @@ This Python API is pretty straightforward: you simply start it up and it runs in
         pkey: 123
         pwd: passphrase123
         txid: 76a9147f7b4be7dd0f12d11f3fe58aee4360a0b8bd75a088ac
+```
 
 There is also one other config file called `.env` in which you configure the “security token” used to access your machine. You would replace this with some secure password, say one generated using a password manager, and enter it in on the appropriate line (“AUTH_TOKEN”) in the file:
 
-
+```
     UVICORN_PORT=9997
     AUTH_TOKEN=SuperPassw0rd123
     SLEEP_SECONDS_BETWEEN_PASTELID_ELIGIBILITY_CHECKS=75
+```
 
 That’s it. You then run the Python API and it spins up a server that listens on port 9997 for requests. In order to access this API, a user must know the secret “security token”. For convenience, the API automatically generates an interactive documentation website that you can check, which looks like this:
 
@@ -217,7 +219,7 @@ Well, that’s a really good point, and something we thought very carefully abou
 
 Naively, you might think that you could simply have a rule that, if you had, say, just one SN and the network as a whole had a total of 100 active SNs, that if you just managed to successfully mine a Pastel block using your one SN PastelID, then you shouldn’t be allowed to sign for a new Pastel block until at least 100 new Pastel blocks have been mined since the block you mined. But there are some serious issues with this approach. For one, nothing says that SNs *have to* mine (although the slow CPU miner is enabled by default on a single CPU thread on all SNs by default as explained above) blocks, it is optional. Second, SNs might go down for technical reasons even though their 5 million PSL collateral coins are still in place at the same address; their computer could crash, they could run out of disk space, they could be upgrading their Linux distribution and have to reboot, etc. What would happen if the whole network were sitting around waiting for one of those nodes to use their PastelID to sign the next block?
 
-We solved this problem by instead multiplying the total number of active SNs by 0.75. So in the example above, even if you had just one SN that you controlled, you would be *eligible* to mine a new block after just 75 new blocks had been mined by the rest of the network. This eligibility check has been integrated directly into the *pasteld* software and can be checked using the new command `getminingeligibility`:
+We solved this problem by instead multiplying the total number of active SNs by `0.75`. So in the example above, even if you had just one SN that you controlled, you would be *eligible* to mine a new block after just 75 new blocks had been mined by the rest of the network. This eligibility check has been integrated directly into the *pasteld* software and can be checked using the new command `getminingeligibility`:
 
 
 ![](https://paper-attachments.dropboxusercontent.com/s_D2E0AAF8676B46CAF8157C2741087BFA44BE8382A55DB2FFCB80BFBE2D205018_1708722519210_image.png)
