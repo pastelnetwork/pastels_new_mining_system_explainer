@@ -89,7 +89,7 @@ That PastelID can then be used to “sign” data of any kind at all: the data c
   
 (note that the password part above is just to decrypt the PastelID container file on the local machine; simply knowing that password would not give anyone else access to the PastelID’s private key unless they also had this container file).  
 
-The output of this command for me, since I do have the secrete container file, is as follows:
+The output of this command for me, since I do have the secret container file on my machine, is as follows:
 
 
     {
