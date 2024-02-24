@@ -83,44 +83,49 @@ But in addition to this, I would *also* have to register a special PastelID tick
 
 That PastelID can then be used to “sign” data of any kind at all: the data could be a message like `Hi, my name is Bob (2/23/2024)`, or it could be the hash of some file, or anything else. The important thing is that the signature allows anyone at all, without trusting anyone else, to verify that someone who controls the private key associated with that particular PastelID (which they know is a valid PastelID by checking the blockchain) really did sign a particular message. Let’s make this concrete with an example. I can use the following command with *pasteld* to sign a message using a particular PastelID which I control:
 
-
+```bash
     ./pastel-cli pastelid sign "Hi, my name is Bob (2/23/2024)" "jXXTanVUSe1T7n3tPTgY3np9a9ePC7bCHnffGRVjqGLaBxYcANePnTU7AQuEf8QSgH72tda2g4BsxUPNhZBcCB" "passw0rd123" "ed448" 
-
+```
   
 (note that the password part above is just to decrypt the PastelID container file on the local machine; simply knowing that password would not give anyone else access to the PastelID’s private key unless they also had this container file).  
 
 The output of this command for me, since I do have the secret container file on my machine, is as follows:
 
-
+```bash
     {
       "signature": "v+IAwgRZaN2ExKCE+9RRXGRbpqohO0SbZy25HSraRKQbfb49PuBekZ10QAEuWtxxV1lS0g6Kg0KAez9bneb3oYsZasYlhBOys3cLwaGQPMmEcDOZP3a1JrfouAExUIzzdUXVZ6SZzqvLE96JK91pbBAA"
     }
+```
 
 The purpose of all this is that I could then say on Telegram or something, “Hey I control the supernode PastelID [jXXTanVUSe1T7n3tPTgY3np9a9ePC7bCHnffGRVjqGLaBxYcANePnTU7AQuEf8QSgH72tda2g4BsxUPNhZBcCB](https://explorer.pastel.network/pastelid/jXYJaaLSghi1EAGLvwpNkiwtccrhyg8pnnGjZTdyrMYJZAHiUWM6bzCiVxWk8dyWmzjks4HrfY4Lc2i5pSwMeK) and to prove it, I’m going to sign the message "Hi, my name is Bob (2/23/2024)" for you. Here is the signature:
 
-
+```bash
     "v+IAwgRZaN2ExKCE+9RRXGRbpqohO0SbZy25HSraRKQbfb49PuBekZ10QAEuWtxxV1lS0g6Kg0KAez9bneb3oYsZasYlhBOys3cLwaGQPMmEcDOZP3a1JrfouAExUIzzdUXVZ6SZzqvLE96JK91pbBAA"
+```
 
 Now, anyone in that Telegram group, without knowing me or trusting me, can first verify that this PastelID is real and valid (i.e., that it was mined and included in an actual Pastel block), and that furthermore, it is associated with a PSL address that still contains at least 5 million PSL in a single transaction (i.e., the SN collateral). Then they can verify that 1) I really do control that PastelID (because otherwise how would I know the corresponding private key for that PastelID, which is required to sign a message with that PastelID?), and 2) that I really did sign the message “Hi, my name is Bob (2/23/2024)" in a way that I can’t repudiate or deny later without admitting that someone else had access to my secret container file and password. They could do this verification simply by running the following command on *their* computer:
 
-
+```bash
     ./pastel-cli pastelid verify "Hi, my name is Bob (2/23/2024)" "v+IAwgRZaN2ExKCE+9RRXGRbpqohO0SbZy25HSraRKQbfb49PuBekZ10QAEuWtxxV1lS0g6Kg0KAez9bneb3oYsZasYlhBOys3cLwaGQPMmEcDOZP3a1JrfouAExUIzzdUXVZ6SZzqvLE96JK91pbBAA" "jXXTanVUSe1T7n3tPTgY3np9a9ePC7bCHnffGRVjqGLaBxYcANePnTU7AQuEf8QSgH72tda2g4BsxUPNhZBcCB" "ed448"
+```
 
 Note that this command did not require the password like the signing command did. *Anyone* can verify a message without any special knowledge required. In any case, anyone in the Telegram group in our example could run the command above and see that the output is:
 
-
+```bash
     {
       "verification": "OK"
     }
+```
 
 So we can see how signatures work, and how we can use them to securely have SN operators use their PastelID identity to attest to a particular message by signing that message with their PastelID private key, and that anyone on the network can then verify that this particular message was signed by this particular PastelID. Note that, in the command above, if *any* character in the message were changed even slightly, it wouldn’t work:
 
-
+```bash
     ❯ ./pastel-cli pastelid verify "Hey, my name is Bob (2/23/2024)" "v+IAwgRZaN2ExKCE+9RRXGRbpqohO0SbZy25HSraRKQbfb49PuBekZ10QAEuWtxxV1lS0g6Kg0KAez9bneb3oYsZasYlhBOys3cLwaGQPMmEcDOZP3a1JrfouAExUIzzdUXVZ6SZzqvLE96JK91pbBAA" "jXXTanVUSe1T7n3tPTgY3np9a9ePC7bCHnffGRVjqGLaBxYcANePnTU7AQuEf8QSgH72tda2g4BsxUPNhZBcCB" "ed448"
     
     {
       "verification": "Failed"
     }
+```
 
 This use of signing by SN PastelIDs is a critical part of our new mining scheme. Under the new system, it’s not enough to just mine for a solution to a new valid Pastel block (i.e., by finding a nonce through the mining which results in a block hash that meets the current mining difficulty requirements of the network); That block must *also* now include the PastelID and valid signature of a Pastel SN that still has their 5 million PSL transaction in their SN’s collateral address. But what message is the PastelID signing? It’s certainly not "Hey, my name is Bob (2/23/2024)"! 
 
@@ -137,14 +142,15 @@ OK, so we added these two new fields to every new Pastel block: the PastelID of 
 
 But even if they don’t, then we welcome them to the Pastel community, where they will be backing up their interest in our project with an actual commitment of financial resources and ongoing compute and storage contributions to keep the network running. But how does this all work in practice? How does this miner, assuming they are prepared to set up a new Pastel SN, start mining and signing the blocks in the correct way? We came up with two ways of doing this. The first is that every SN from now on will enable at least one CPU thread to operate a CPU miner that will use the PastelID used to set up that particular SN. This is really more of a backup than anything else given the very slow speed of CPU mining versus GPU based mining, let alone ASIC based mining. But it will make the network robust to failures in the few mining pools, since each SN will be able to mine on its own.
 
-Beyond that, we believe the majority of new Pastel blocks will continue to be mined using ASICs via our mining pools, and any pools that anyone else wants to set up for solo mining or public mining. In order to make this all work, we have modified the S-Nomp mining software and in particular, the associated [Stratum Pool library](https://github.com/pastelnetwork/node-stratum-pool-pastel) that it relies upon, to work with our new system. The mining pool already had a password field that we didn’t use (you could put anything as your password and it would work). If you wanted to mine on our pool at [pool.pastel.network](https://pool.pastel.network/),  you simply rented a mining rig on a site like NiceHash or MiningRigRentals (or used your own ASIC miner) and pointed this to our pool site; your “user name” was simply the PSL address where you wanted the pool to send your share of any mined coins based on your contributions to the pool’s overall hash rate relative to other “mining workers” operating on that pool.
+Beyond that, we believe the majority of new Pastel blocks will continue to be mined using ASICs via our mining pools, and any pools that anyone else wants to set up for solo mining or public mining. In order to make this all work, we have modified the S-Nomp mining software and, in particular, the associated [Stratum Pool library](https://github.com/pastelnetwork/node-stratum-pool-pastel) that it relies upon, to work with our new system. The mining pool software already had a password field that we didn’t use (you could put anything as your password and it would work). Thus, if you wanted to mine on our pool at [pool.pastel.network](https://pool.pastel.network/), you simply rented a mining rig on a site like NiceHash or MiningRigRentals (or used your own physical ASIC miner) and pointed this to our pool site; your “user name” was simply the PSL address where you wanted the pool to send your share of any mined coins, based on your contributions to the pool’s overall hash rate relative to other “mining workers” operating on that same pool.
 
-We modified the pool software so that anyone who wants to mine Pastel would now also use the password field instead of having it be arbitrary. The new password field would include the IP address of a machine that you set up for this purpose to supply valid SN PastelID signatures on demand for each new block that is mined on Pastel’s blockchain (more about this in a moment) as well as the security token used to access this machine (so that it isn’t open to everyone, just the pool operator, for security purposes; note that even the pool operator can’t do much with that access other than get signatures of your PastelID on the previous Pastel block’s Merkle root; it can’t be used in general to impersonate that PastelID or for anything else). For example, the password field and other mining data might look like this:
+So we modified the pool software so that anyone who wants to mine Pastel would now also use the password field instead of having it be arbitrary. The new password field would include the IP address of a machine that you set up for this purpose to supply valid SN PastelID signatures on demand for each new block that is mined on Pastel’s blockchain (more about this in a moment), as well as a security token used to access this machine (so that, for security purposes, it isn’t open to everyone— just the pool operator; note that even the pool operator can’t do much with that access, other than get signatures of your PastelID on the previous Pastel block’s Merkle root. Importantly, the access cannot be used in general to impersonate that PastelID or for anything else). For example, the password field and other mining data might look like this:
 
-
+```
         "url" : "stratum+tcp://pool.pastel.network:1234`",
         "user" : "tPehDoxwvxZHGNC3hPSa4aP1yZzRwuSNFkh",
         "pass" : "SuperPassw0rd123|178.18.254.243",
+```
 
 The way this works is that anyone interested in mining can get a cheap cloud instance (or use one they already have, such as an existing instance used for their SN, which they would need to have anyone to run the SN) with a static IP address, and then install our new Python based API server, the [**mining_block_supernode_validator**](https://github.com/pastelnetwork/mining_block_supernode_validator). This is all quite easy to do if you’re technically adept enough already to set up a SN. If all you know how to do is rent hashpower on NiceHash and point it to a pool, and would have no clue at all on how to set up and configure a Pastel SN or this new Python API, then that would be a problem and you’d probably be unable to mine without asking for a lot of help (which of course we’d be happy to provide anyone in our Telegram and Discord groups; remember, the purpose of this is *not* to make mining some exclusive thing available only to anointed insiders or friends; instead, it’s to eliminate the free-rider problem and fix the market dynamics for PSL).
 
