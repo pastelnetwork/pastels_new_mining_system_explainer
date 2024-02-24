@@ -2,7 +2,7 @@
 
 ## *Written on 2/23/24*
 
-![Illustration](https://raw.githubusercontent.com/pastelnetwork/pastels_new_mining_system_explainer/master/mining_system_illustration.webp?token=GHSAT0AAAAAACIQQJOLYIC26ATBAQAUOUXMZOZKJDQ)
+![Illustration](https://raw.githubusercontent.com/pastelnetwork/pastels_new_mining_system_explainer/master/mining_system_illustration.webp)
 
 ## Introduction
 
